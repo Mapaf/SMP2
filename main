@@ -1,0 +1,75 @@
+#include <mbed.h>
+
+PwmOut led_serial(LED1);
+
+Serial pc(USBTX, USBRX, 9600);
+
+char c = '\0';
+
+const float int_dec = 0.05f;
+
+void get_serial_value()
+{
+  c = pc.getc();
+}
+
+int main()
+{
+  pc.attach(&get_serial_value);
+
+  while (1)
+  {
+    if (c == '\0')
+      continue;
+
+    float led_int = led_serial.read();
+
+    switch (c){
+        
+      case '+':
+      
+        if (led_int >= 1.0f){
+          led_int = 1.0f;  
+        }else{
+          led_int += int_dec;  
+        }
+          
+        break;
+        
+      case '-':
+      
+        if (led_int <= 0.0f){
+           led_int = 0.0f; 
+        }else{
+           led_int -= int_dec; 
+        }
+          
+        break;
+        
+      case '*':
+      
+        led_int = 1.0f;
+        
+        break;
+        
+      case '/':
+      
+        led_int = 0.0f;
+        
+        break;
+        
+      default:
+      
+        pc.printf("Erro\n");
+        
+        continue;
+        
+    }
+
+    led_serial.write(led_int);
+    pc.printf("%f\n", led_int);
+
+    wait_ms(100);
+  }
+  
+}
